@@ -1,0 +1,22 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: demo-srv-config
+  cloud:
+    config:
+      name: demo-srv-config
+      server:
+        native:
+          searchLocations: classpath:/config
+
+  security:
+    user:
+      name: configUser
+      password: configPassword
+      role: SYSTEM
+
+  profiles:
+    active: native
+

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet id="demo_2.1" author="igorl" dbms="postgresql">
+    <sql dbms="postgresql" endDelimiter=";">
+      CREATE SCHEMA IF NOT EXISTS oauth
+    </sql>
+  </changeSet>
+  
+  <changeSet id="demo_2.2" author="igorl" dbms="postgresql">
+    <createTable tableName="oauth_access_token" schemaName="oauth">
+      <column name="token_id" type="varchar(256)"/>
+      <column name="token" type="BLOB"/>
+      <column name="authentication_id" type="varchar2(256)"/>
+      <column name="user_name" type="varchar2(256)"/>
+      <column name="client_id" type="varchar2(256)"/>
+      <column name="authentication" type="BLOB"/>
+      <column name="refresh_token" type="varchar2(256)"/>
+    </createTable>
+  </changeSet>
+  
+  <changeSet id="demo_2.3" author="igorl" dbms="postgresql">
+    <createTable tableName="oauth_refresh_token" schemaName="oauth">
+      <column name="token_id" type="varchar(256)"/>
+      <column name="token" type="BLOB"/>
+      <column name="authentication" type="BLOB"/>
+    </createTable>
+  </changeSet>
+  
+  <changeSet id="demo_2.4" author="igorl" dbms="postgresql">
+    <createTable tableName="users" schemaName="oauth">
+      <column name="id" type="int"/>
+      <column name="username" type="varchar(256)"/>
+      <column name="password" type="varchar(256)"/>
+      <column name="enabled" type="TINYINT(1)" />
+    </createTable>
+  </changeSet>
+  
+  <changeSet id="demo_2.5" author="igorl" dbms="postgresql">
+    <createTable tableName="authorities" schemaName="oauth">
+      <column name="username" type="varchar(256)"/>
+      <column name="authority" type="varchar(256)"/>
+    </createTable>
+  </changeSet>
+  
+  <changeSet id="demo_2.6" author="igorl" dbms="postgresql">
+    <createTable tableName="oauth_client_details" schemaName="oauth">
+      <column name="client_id" type="varchar(256)"/>
+      <column name="resource_ids" type="BLOB"/>
+      <column name="client_secret" type="varchar2(256)"/>
+      <column name="scope" type="varchar2(256)"/>
+      <column name="authorized_grant_types" type="varchar2(256)"/>
+      <column name="web_server_redirect_uri" type="varchar2(256)"/>
+      <column name="authorities" type="varchar2(256)"/>
+      <column name="access_token_validity" type="INTEGER"/>
+      <column name="refresh_token_validity" type="INTEGER"/>
+      <column name="additional_information" type="varchar2(4000)"/>
+      <column name="autoapprove" type="varchar2(256)"/>
+    </createTable>
+  </changeSet>
+  
+  <changeSet id="demo_2.7" author="igorl" dbms="postgresql">
+    <createTable tableName="oauth_client_token" schemaName="oauth">
+      <column name="token_id" type="varchar(256)"/>
+      <column name="token" type="BLOB"/>
+      <column name="authentication_id" type="varchar2(256)"/>
+      <column name="user_name" type="varchar2(256)"/>
+      <column name="client_id" type="varchar2(256)"/>
+    </createTable>
+  </changeSet>
+  
+  <!--encrypted password is "demo_password"-->
+  <changeSet id="demo_2.8" author="igorl">
+    <insert tableName="users" schemaName="oauth">
+      <column name="id">1</column>
+      <column name="username">demo_user</column>
+      <column name="password">$2a$12$s9UPnPfn.K8FaC02vDGmuOvrmeV1k/Sp9G5pxKV8yQW6XogWIr66.</column>
+      <column name="enabled">1</column>
+    </insert>
+  </changeSet>
+  
+  <changeSet id="demo_2.9" author="igorl">
+    <insert tableName="authorities" schemaName="oauth">
+      <column name="username">demo_user</column>
+      <column name="authority">ROLE_USER</column>
+    </insert>
+  </changeSet>
+  
+  <!-- The encrypted client_secret it `secret`-->
+  <!--TODO: change clienId and secret here, later-->
+  <changeSet id="demo_2.10" author="igorl">
+    <insert tableName="oauth_client_details" schemaName="oauth">
+      <column name="client_id">client id</column>
+      <column name="client_secret">$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.</column>
+      <column name="scope">read,write</column>
+      <column name="authorized_grant_types">password,refresh_token,client_credentials</column>
+      <column name="authorities">ROLE_CLIENT</column>
+      <column name="access_token_validity">300</column>
+    </insert>
+  </changeSet>
+  
+</databaseChangeLog>

@@ -1,0 +1,36 @@
+server:
+  port: 5000
+spring:
+  application:
+    name: demo-api-gateway
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl.defaultZone: http://${eureka.hostname:localhost}:8761/eureka
+
+zuul:
+  ignoredServices: '*'
+  host:
+    connect-timeout-millis: 20000
+    socket-timeout-millis: 20000
+
+  routes:
+    auth-service:
+      path: /demo/authorisation-service/**
+      serviceId: demo-srv-authorisation
+      stripPrefix: true
+      sensitiveHeaders:
+
+    user-service:
+      path: /demo/user-service/**
+      serviceId: demo-api-user
+      stripPrefix: true
+      sensitiveHeaders:
+
+    image-service:
+      path: /demo/images-service/**
+      serviceId: demo-api-images
+      stripPrefix: true
+      sensitiveHeaders:

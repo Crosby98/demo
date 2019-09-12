@@ -1,0 +1,168 @@
+version: "3.7"
+services:
+  demo-srv-config:
+    build:
+      context: ./srv-config
+      dockerfile: Dockerfile
+    image: crosby98/demo-srv-config
+    container_name: demo-srv-config
+    ports:
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-u", "configUser:configPassword", "-f", "http://localhost:9001/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  demo-srv-auth:
+    build:
+      context: ./srv-authorisation
+      dockerfile: Dockerfile
+    environment:
+      - config.server=http://demo-srv-config:9001
+      - JDBC_URL=jdbc:postgresql://postgres:5432/demo?currentSchema=oauth
+      - eureka.hostname=demo-srv-discovery
+    container_name: demo-srv-auth
+    image: crosby98/demo-srv-auth
+    restart: always
+    depends_on:
+      - demo-srv-config
+      - demo-srv-discovery
+      - postgres
+    ports:
+      - "9010:9010"
+    healthcheck:
+      test: ["CMD", "curl", "-u", "configUser:configPassword", "-f", "http://localhost:9010/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    links:
+      - demo-srv-discovery
+      - demo-srv-config
+      - postgres
+
+  demo-api-user:
+    build:
+      context: ./api-user
+    container_name: demo-api-user
+    image: crosby98/demo-srv-user
+    ports:
+      - "9002:9002"
+    healthcheck:
+      test: ["CMD", "curl", "-u", "configUser:configPassword", "-f", "http://localhost:9002/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: always
+    environment:
+      - config.server=http://demo-srv-config:9001
+      - JDBC_URL=jdbc:postgresql://postgres:5432/demo
+      - eureka.hostname=demo-srv-discovery
+    depends_on:
+      - demo-srv-discovery
+      - demo-srv-config
+      - postgres
+    links:
+      - demo-srv-discovery
+      - demo-srv-config
+      - postgres
+      - demo-api-images
+
+  demo-api-images:
+    build:
+      context: ./api-images
+    container_name: demo-api-images
+    image: crosby98/demo-srv-images
+    ports:
+      - "9003:9003"
+    healthcheck:
+      test: ["CMD", "curl", "-u", "configUser:configPassword", "-f", "http://localhost:9003/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: always
+    environment:
+      - config.server=http://demo-srv-config:9001
+      - MONGO_HOST=mongodb
+      - eureka.hostname=demo-srv-discovery
+    depends_on:
+      - demo-srv-config
+      - demo-srv-discovery
+      - postgres
+      - mongodb
+    links:
+      - demo-srv-discovery
+      - demo-srv-config
+      - postgres
+      - mongodb
+
+  demo-srv-discovery:
+    build:
+      context: ./srv-discovery
+    container_name: demo-srv-discovery
+    image: crosby98/demo-srv-discovery
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "curl", "-u", "configUser:configPassword", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: always
+    environment:
+      - config.server=http://demo-srv-config:9001
+      - server.port=8761
+    depends_on:
+      - demo-srv-config
+    links:
+      - demo-srv-config
+
+  postgres:
+    image: "postgres:latest"
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=demo
+      - POSTGRES_USER=us_root
+      - POSTGRES_PASSWORD=YLweX9QoDWHVRkzpMGndGBqm
+    ports:
+      - 5432:5432
+    volumes:
+      - my_dbdata:/var/lib/postgresql/data
+
+  demo-api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: demo-api-gateway
+    image: crosby98/demo-srv-gateway
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-u", "configUser:configPassword", "-f", "http://localhost:5000/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: always
+    environment:
+      - eureka.hostname=demo-srv-discovery
+      - config.server=http://demo-srv-config:9001
+    depends_on:
+      - demo-srv-discovery
+      - demo-srv-config
+    links:
+      - demo-srv-discovery
+      - demo-srv-config
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+        - MONGODB_USER=us_root
+        - MONGODB_PASS=YLweX9QoDWHVRkzpMGndGBqm
+    volumes:
+      - mongo:/data/db
+    ports:
+      - 27017:27017
+
+volumes:
+  my_dbdata:
+  mongo:
