@@ -1,8 +1,8 @@
 package com.example.api.dto.integration_tests;
 
 import com.example.api.dto.UserDto;
+import com.example.api.dto.WithTestOauth2Authentication;
 import com.example.api.dto.dao.UserRepository;
-import com.example.api.dto.withTestOauth2Authentication;
 import com.example.api.web.bom.User;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class UserServiceIntegrationTest extends BaseIntegrationTest {
     private UserRepository repository;
 
     @Test
-    @withTestOauth2Authentication()
+    @WithTestOauth2Authentication()
     public void shouldReturnUserByPhone() throws Exception {
 
         String phone = "0506856170";

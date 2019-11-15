@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 @WithSecurityContext(factory = WithMockCustomUserSecurityContextFactory.class)
-public @interface withTestOauth2Authentication {
+public @interface WithTestOauth2Authentication {
 
     String username() default "rob";
 

@@ -14,7 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestPropertySource("classpath:application.properties")
-abstract class BaseIntegrationTest {
+public abstract class BaseIntegrationTest {
 
     protected UserDto createUserDto() {
         UserDto userDto = new UserDto();

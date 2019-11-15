@@ -15,14 +15,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class WithMockCustomUserSecurityContextFactory implements WithSecurityContextFactory<withTestOauth2Authentication> {
+public class WithMockCustomUserSecurityContextFactory implements WithSecurityContextFactory<WithTestOauth2Authentication> {
 
     @Autowired
     private DefaultTokenServices defaultTokenServices;
 
     @Override
-    public SecurityContext createSecurityContext(withTestOauth2Authentication customUser) {
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
+    public SecurityContext createSecurityContext(WithTestOauth2Authentication customUser) {
+        SecurityContext testSecurityContext = SecurityContextHolder.createEmptyContext();
 
         Set<String> scopes = new HashSet<>();
         Collections.addAll(scopes, "read", "write");
@@ -35,14 +35,16 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
 
         OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authenticationToken);
 
+        // overriding jwt token store, because it don't have storeAccessToken() implementation
         defaultTokenServices.setTokenStore(new InMemoryTokenStore());
 
         OAuth2AccessToken token = defaultTokenServices.createAccessToken(oAuth2Authentication);
 
+        // setting token to details, to retrieve it in testing class
         oAuth2Authentication.setDetails(token);
 
-        context.setAuthentication(oAuth2Authentication);
+        testSecurityContext.setAuthentication(oAuth2Authentication);
 
-        return context;
+        return testSecurityContext;
     }
 }

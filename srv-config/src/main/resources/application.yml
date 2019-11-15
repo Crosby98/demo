@@ -20,3 +20,5 @@ spring:
   profiles:
     active: native
 
+app:
+  logPath: logs/configService.log
